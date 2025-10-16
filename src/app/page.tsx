@@ -1,103 +1,228 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [violationType, setViolationType] = useState("");
+  const [communityName, setCommunityName] = useState("");
+  const [homeownerAddress, setHomeownerAddress] = useState("");
+  const [dateOfViolation, setDateOfViolation] = useState("");
+  const [specificDetails, setSpecificDetails] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [generatedLetter, setGeneratedLetter] = useState("");
+  const [copySuccess, setCopySuccess] = useState(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const handleSubmit = async () => {
+    if (!violationType || !communityName || !homeownerAddress || !dateOfViolation) {
+      setError("Please fill in all required fields");
+      return;
+    }
+
+    setError("");
+    setGeneratedLetter("");
+    setIsLoading(true);
+    setCopySuccess(false);
+
+    try {
+      const response = await fetch("/api", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          violationType,
+          communityName,
+          homeownerAddress,
+          dateOfViolation,
+          specificDetails,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to generate letter");
+      }
+
+      setGeneratedLetter(data.letter);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An unexpected error occurred");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCopyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(generatedLetter);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    } catch (err) {
+      alert("Failed to copy to clipboard");
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-100 py-12 px-4">
+      <div className="max-w-3xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-3">
+            HOA Violation Letter AI
+          </h1>
+          <p className="text-lg text-gray-600">
+            Generate a professional, compliant, and neighbor-friendly violation notice in seconds.
+          </p>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        {/* Main Form Card */}
+        <div className="bg-white rounded-lg shadow-lg p-8 mb-6">
+          <div>
+            {/* Step 1: Violation Type */}
+            <div className="mb-6">
+              <label
+                htmlFor="violationType"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
+                1. Select Violation Type
+              </label>
+              <select
+                id="violationType"
+                value={violationType}
+                onChange={(e) => setViolationType(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="">-- Select a violation type --</option>
+                <option value="Lawn & Landscaping Maintenance">
+                  Lawn & Landscaping Maintenance
+                </option>
+                <option value="Trash Can Storage">Trash Can Storage</option>
+                <option value="Unauthorized Parking">Unauthorized Parking</option>
+                <option value="Noise Complaint">Noise Complaint</option>
+                <option value="Unapproved Architectural Changes">
+                  Unapproved Architectural Changes
+                </option>
+                <option value="Pet Policy Violation">Pet Policy Violation</option>
+              </select>
+            </div>
+
+            {/* Step 2: Fill in Details */}
+            <div className="mb-6">
+              <h2 className="text-sm font-semibold text-gray-700 mb-4">
+                2. Fill in Details
+              </h2>
+
+              <div className="space-y-4">
+                <div>
+                  <label
+                    htmlFor="communityName"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Community Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="communityName"
+                    value={communityName}
+                    onChange={(e) => setCommunityName(e.target.value)}
+                    placeholder="e.g., Oakwood Estates HOA"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="homeownerAddress"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Homeowner's Full Address <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="homeownerAddress"
+                    value={homeownerAddress}
+                    onChange={(e) => setHomeownerAddress(e.target.value)}
+                    placeholder="e.g., 123 Main Street, City, State 12345"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="dateOfViolation"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Date <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    id="dateOfViolation"
+                    value={dateOfViolation}
+                    onChange={(e) => setDateOfViolation(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="specificDetails"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    (Optional) Additional Details
+                  </label>
+                  <textarea
+                    id="specificDetails"
+                    value={specificDetails}
+                    onChange={(e) => setSpecificDetails(e.target.value)}
+                    rows={4}
+                    placeholder="Provide any additional context or specific observations..."
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              onClick={handleSubmit}
+              disabled={isLoading}
+              className="w-full bg-blue-600 text-white font-semibold py-3 px-6 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+            >
+              {isLoading ? "Generating Your Letter..." : "Generate Your Letter"}
+            </button>
+          </div>
+
+          {/* Error Display */}
+          {error && (
+            <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-md">
+              <p className="text-red-800 text-sm font-medium">{error}</p>
+            </div>
+          )}
+        </div>
+
+        {/* Generated Letter Display */}
+        {generatedLetter && (
+          <div className="bg-white rounded-lg shadow-lg p-8">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold text-gray-900">
+                Your Generated Letter
+              </h2>
+              <button
+                onClick={handleCopyToClipboard}
+                className="bg-green-600 text-white font-medium py-2 px-4 rounded-md hover:bg-green-700 transition-colors"
+              >
+                {copySuccess ? "✓ Copied!" : "Copy to Clipboard"}
+              </button>
+            </div>
+            <div className="prose max-w-none">
+              <pre className="whitespace-pre-wrap font-sans text-gray-800 bg-gray-50 p-6 rounded-md border border-gray-200">
+                {generatedLetter}
+              </pre>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
