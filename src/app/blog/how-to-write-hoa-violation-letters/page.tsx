@@ -16,7 +16,11 @@ export default function BlogPost() {
 
         <article className="bg-white rounded-lg shadow-lg p-8 lg:p-12 prose max-w-none">
           
-          <h1>Revolutionize Your HOA: Write Perfect Violation Letters in Seconds</h1>
+          {/* --- 最终美化：强制放大标题字体 --- */}
+          <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '1.5rem', textAlign: 'center' }}>
+            Revolutionize Your HOA: Write Perfect Violation Letters in Seconds
+          </h1>
+          {/* --- 修改结束 --- */}
           
           <p className="lead" style={{ fontSize: '1.25rem', color: '#4A5568' }}>Struggling with violation notices? A poorly worded letter can create neighborhood conflict, while a perfect one solves problems and builds community. Here’s the definitive guide to mastering HOA communication.</p>
 
