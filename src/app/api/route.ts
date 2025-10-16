@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const API_KEY = process.env.HOA_API_KEY;
-const BASE_URL = "https://xinghuapi.com/v1";
+
+// --- 最终更新：对接 xinghuapi.com ---
+const BASE_URL = "https://xinghuapi.com/v1"; 
 
 export async function POST(request: NextRequest) {
   if (!API_KEY) {
